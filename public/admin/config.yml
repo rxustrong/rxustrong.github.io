@@ -2,7 +2,6 @@ backend:
   name: github
   repo: rxustrong/rxustrong.github.io
   branch: main
-  base_url: https://aran-blog-auth.aranblog.workers.dev
 
 publish_mode: editorial_workflow
 
