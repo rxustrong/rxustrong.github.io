@@ -2,10 +2,7 @@ backend:
   name: github
   repo: rxustrong/rxustrong.github.io
   branch: main
-  # 登录方式说明：
-  # 1) 开通 GitHub OAuth 网关（Cloudflare Worker）后，填 base_url，即可"用 GitHub 账号登录"。
-  # 2) 未开通期间，后台支持"令牌登录"（GitHub Settings → Developer settings → Personal access tokens，勾选 repo 权限）。
-  # base_url: https://your-worker.workers.dev
+  base_url: https://aran-blog-auth.aranblog.workers.dev
 
 publish_mode: editorial_workflow
 
