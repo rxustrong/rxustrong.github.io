@@ -1,0 +1,54 @@
+---
+import '../styles/global.css';
+export interface Props {
+  title: string;
+  description?: string;
+  active?: 'home' | 'posts' | 'about';
+}
+const { title, description, active } = Astro.props;
+const pageTitle = title === '阿燃的漂流日记'
+  ? title
+  : `${title} · 阿燃的漂流日记`;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description ?? '阿燃的漂流日记：投资梳理与个人感悟'} />
+    <meta name="generator" content={Astro.generator} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#c8481f" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="阿燃的漂流日记" href="/rss.xml" />
+  </head>
+  <body>
+    <header class="nav">
+      <div class="nav-inner">
+        <a class="brand" href="/">阿燃的漂流日记<small>ARAN</small></a>
+        <nav class="nav-links">
+          <a href="/" class:list={[{ 'active': active === 'home' }]}>首页</a>
+          <a href="/posts/" class:list={[{ 'active': active === 'posts' }]}>文章</a>
+          <a href="/about/" class:list={[{ 'active': active === 'about' }]}>关于</a>
+          <a href="/admin/" target="_blank">写作</a>
+        </nav>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <span>阿燃的漂流日记 · 用文字记录漂流与思考</span>
+        <span>
+          <a href="/admin/" target="_blank">登录写作</a>
+          <span class="dot">·</span>
+          <a href="/rss.xml">RSS</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+backend:
+  name: github
+  repo: rxustrong/rxustrong.github.io
+  branch: main
+  # 登录方式说明：
+  # 1) 开通 GitHub OAuth 网关（Cloudflare Worker）后，填 base_url，即可"用 GitHub 账号登录"。
+  # 2) 未开通期间，后台支持"令牌登录"（GitHub Settings → Developer settings → Personal access tokens，勾选 repo 权限）。
+  # base_url: https://your-worker.workers.dev
+
+publish_mode: editorial_workflow
+
+media_folder: public/images
+public_folder: /images
+
+collections:
+  - name: posts
+    label: 文章
+    label_singular: 文章
+    folder: src/content/posts
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    preview_path: "posts/{{slug}}"
+    fields:
+      - { label: 标题, name: title, widget: string }
+      - { label: 日期, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD" }
+      - { label: 分类标签, name: tags, widget: list, default: ["随笔"], required: false }
+      - { label: 摘要, name: description, widget: text, required: false }
+      - { label: 正文, name: body, widget: richtext }

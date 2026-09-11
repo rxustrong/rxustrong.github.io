@@ -1,0 +1,64 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import TagBadge from '../../components/TagBadge.astro';
+import { getCollection } from 'astro:content';
+import { slugOf } from '../../utils/slug';
+
+const url = new URL(Astro.url);
+const activeTag = url.searchParams.get('tag');
+
+const allPosts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const tagCounts = new Map<string, number>();
+for (const p of allPosts) {
+  for (const t of p.data.tags) {
+    tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
+  }
+}
+const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
+
+const posts = activeTag
+  ? allPosts.filter((p) => p.data.tags.includes(activeTag))
+  : allPosts;
+---
+
+<Layout title="文章" description="阿燃的漂流日记所有文章" active="posts">
+  <main class="container" style="padding-top: 52px; padding-bottom: 72px;">
+    <div class="section-head" style="margin-bottom: 18px;">
+      <h2>{activeTag ? `# ${activeTag}` : '全部文章'}<small style="color: var(--text-faint); font-weight: 400; font-size: 0.9rem; margin-left: 10px;">共 {posts.length} 篇</small></h2>
+    </div>
+
+    <div class="filter-bar">
+      <a class="tag" class:list={[{ 'on': !activeTag }]} href="/posts/">全部</a>
+      {tags.map(([tag]) => (
+        <a class="tag" class:list={[{ 'on': activeTag === tag }]} href={`/posts/?tag=${encodeURIComponent(tag)}`}>
+          {tag} · {tagCounts.get(tag)}
+        </a>
+      ))}
+    </div>
+
+    {posts.length > 0 ? (
+      <div class="list">
+        {posts.map((post) => {
+          const { title, description, date, tags } = post.data;
+          const y = date.getUTCFullYear();
+          const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+          const d = String(date.getUTCDate()).padStart(2, '0');
+          return (
+            <article class="list-item">
+              <time style="font-size: 0.8rem; color: var(--text-faint);">{y}-{m}-{d}</time>
+              <h2><a href={`/posts/${slugOf(post)}/`}>{title}</a></h2>
+              {description && <p style="margin: 0; color: var(--text-soft); font-size: 0.92rem;">{description}</p>}
+              <div class="tags">
+                {tags.map((t, i) => <TagBadge tag={t} href={`/posts/?tag=${encodeURIComponent(t)}`} key={i} />)}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    ) : (
+      <p style="color: var(--text-soft);">该分类下还没有文章。</p>
+    )}
+  </main>
+</Layout>

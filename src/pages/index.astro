@@ -1,0 +1,62 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PostCard from '../components/PostCard.astro';
+import TagBadge from '../components/TagBadge.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const recent = posts.slice(0, 6);
+const tagCounts = new Map<string, number>();
+for (const p of posts) {
+  for (const t of p.data.tags) {
+    tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
+  }
+}
+const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+---
+
+<Layout title="阿燃的漂流日记" active="home">
+  <section class="hero">
+    <div class="container">
+      <div class="hero-kicker">ARAN'S DRIFTING NOTES</div>
+      <h1>欢迎来到<em>阿燃的漂流日记</em></h1>
+      <p>这里是阿燃的文字角落：投资梳理、个人思考、读书笔记。用时间记录每一个想法的来处与去向。</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/posts/">开始阅读</a>
+        <a class="btn btn-ghost" href="/about/">认识阿燃</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>最新文章</h2>
+        <a class="more" href="/posts/">全部文章 →</a>
+      </div>
+
+      {recent.length > 0 ? (
+        <div class="grid">
+          {recent.map((post) => <PostCard post={post} />)}
+        </div>
+      ) : (
+        <p style="color: var(--text-soft);">还没有文章，正在把第一篇扑面而来的想法记录下来。</p>
+      )}
+    </div>
+  </section>
+
+  {tags.length > 0 && (
+    <section class="section" style="padding-top: 0;">
+      <div class="container">
+        <div class="section-head">
+          <h2>主题分类</h2>
+        </div>
+        <div class="tags" style="gap: 10px;">
+          {tags.map(([tag]) => <TagBadge tag={tag} href={`/posts/?tag=${encodeURIComponent(tag)}`} />)}
+        </div>
+      </div>
+    </section>
+  )}
+</Layout>

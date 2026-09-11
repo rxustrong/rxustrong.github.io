@@ -1,0 +1,28 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import TagBadge from './TagBadge.astro';
+import { slugOf } from '../utils/slug';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+}
+
+const { post } = Astro.props;
+const { title, description, date, tags } = post.data;
+const year = date.getUTCFullYear();
+const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+const day = String(date.getUTCDate()).padStart(2, '0');
+---
+
+<article class="card">
+  <div class="card-meta">
+    <time datetime={date.toISOString()}>{year} 年 {Number(month)} 月 {Number(day)} 日</time>
+  </div>
+  <h3><a href={`/posts/${slugOf(post)}/`}>{title}</a></h3>
+  {description && <p>{description}</p>}
+  {tags.length > 0 && (
+    <div class="tags">
+      {tags.map((t, i) => <TagBadge tag={t} key={i} />)}
+    </div>
+  )}
+</article>
