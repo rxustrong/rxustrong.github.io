@@ -18,7 +18,12 @@ collections:
     preview_path: "posts/{{slug}}"
     fields:
       - { label: 标题, name: title, widget: string }
-      - { label: 日期, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD" }
+      - { label: 日期, name: date, widget: date, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD" }
       - { label: 分类标签, name: tags, widget: list, default: ["随笔"], required: false }
       - { label: 摘要, name: description, widget: text, required: false }
+      - label: 草稿
+        name: draft
+        widget: boolean
+        default: false
+        required: false
       - { label: 正文, name: body, widget: richtext }
