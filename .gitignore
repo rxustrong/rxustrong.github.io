@@ -11,9 +11,13 @@ npm-debug.log*
 Thumbs.db
 
 # 编辑器
-.vscode/
+.vscode/*
+!.vscode/tasks.json
 .idea/
 
 # Astro 环境变量（如本地开发配置）
 .env.local
 .env
+
+# 本地备用 OAuth 服务实验，不随静态博客发布
+sveltia-cms-auth/

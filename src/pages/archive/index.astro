@@ -1,0 +1,8 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { gardenPosts, formatDate } from '../../utils/garden';
+import { slugOf } from '../../utils/slug';
+const posts = await gardenPosts();
+const years = [...new Set(posts.map(p => p.data.date.getUTCFullYear()))];
+---
+<Layout title="时间归档" active="archive"><section class="page-heading shell"><p class="eyebrow">A TRAIL THROUGH TIME</p><h1>那些写下来的日子</h1><p>按时间回看：当时关心什么，后来又如何理解。</p></section><section class="shell archive-list">{years.map(year => <section class="archive-year"><h2>{year}<small>{posts.filter(p => p.data.date.getUTCFullYear() === year).length} 篇</small></h2><div>{posts.filter(p => p.data.date.getUTCFullYear() === year).map(post => <a class="archive-item" href={`/posts/${slugOf(post)}/`}><time datetime={formatDate(post.data.date)}>{formatDate(post.data.date).slice(5)}</time><span>{post.data.title}{post.data.draft && <small class="draft-label">草稿</small>}</span><span aria-hidden="true">↗</span></a>)}</div></section>)}{!posts.length && <div class="empty-state"><span aria-hidden="true">❧</span><h2>时间的足迹，从第一篇开始。</h2><p>公开文章会自动按年份收录到这里。</p></div>}</section></Layout>

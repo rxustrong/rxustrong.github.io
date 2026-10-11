@@ -1,0 +1,7 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { gardenPosts, topicDescriptions, topicUrl } from '../../utils/garden';
+const posts = await gardenPosts();
+const topics = [...new Set([...Object.keys(topicDescriptions), ...posts.flatMap(p => p.data.tags)])];
+---
+<Layout title="主题" active="topics"><section class="page-heading shell"><p class="eyebrow">FOLLOW A THREAD</p><h1>沿着主题，慢慢探索。</h1><p>不同时间的记录，会在同一个问题旁边重新相遇。</p></section><section class="shell section" style="padding-top:0"><div class="topic-grid">{topics.map((topic, index) => <a class="topic-tile" href={topicUrl(topic)}><span class="topic-index">{String(index + 1).padStart(2, '0')} · {posts.filter(p => p.data.tags.includes(topic)).length} 篇</span><h2>{topic}<span aria-hidden="true">↗</span></h2><p>{topicDescriptions[topic] ?? '沿着这个主题，找回相关的思考与记录。'}</p></a>)}</div></section></Layout>

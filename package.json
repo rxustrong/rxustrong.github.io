@@ -7,6 +7,11 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "new": "node scripts/new-post.mjs",
+    "check": "astro check",
+    "test": "node --test tests/new-post.test.mjs tests/publication.test.mjs tests/publish-target.test.mjs",
+    "publish:check": "node scripts/publish.mjs --check-only",
+    "publish": "node scripts/publish.mjs",
     "astro": "astro"
   },
   "dependencies": {

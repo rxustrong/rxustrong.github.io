@@ -1,4 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#c8481f"/>
-  <text x="32" y="44" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="34" font-weight="700" fill="#ffffff" text-anchor="middle">漂</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#f6f3eb"/><path d="M32 51V25M32 36C12 37 11 17 13 14c17 0 23 12 19 22M32 29C33 11 48 10 53 12c0 15-10 23-21 17" fill="#53785f" stroke="#36543e" stroke-width="2" stroke-linejoin="round"/></svg>

@@ -1,0 +1,12 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { gardenPosts, topicDescriptions } from '../../utils/garden';
+export async function getStaticPaths() {
+  const posts = await gardenPosts();
+  const topics = [...new Set([...Object.keys(topicDescriptions), ...posts.flatMap(p => p.data.tags)])];
+  return topics.map(tag => ({ params: { tag }, props: { tag, posts: posts.filter(p => p.data.tags.includes(tag)) } }));
+}
+const { tag, posts } = Astro.props;
+---
+<Layout title={tag} active="topics"><section class="page-heading shell"><a class="back-link" href="/topics/">← 所有主题</a><h1>{tag}</h1><p>{topicDescriptions[tag] ?? '这个主题下的思考与记录。'}</p></section><section class="shell section" style="padding-top:0">{posts.length ? <div class="post-grid">{posts.map(post => <PostCard post={post} />)}</div> : <div class="empty-state"><span aria-hidden="true">❧</span><h2>这个主题还没有文章。</h2><p>等一篇值得留下的记录。</p><a class="quiet-link" href="/posts/">回到花园 ↗</a></div>}</section></Layout>

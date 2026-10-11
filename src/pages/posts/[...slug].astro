@@ -1,73 +1,15 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import TagBadge from '../../components/TagBadge.astro';
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
 import { slugOf } from '../../utils/slug';
-
+import { gardenPosts, growthLabels, formatDate, topicUrl } from '../../utils/garden';
 export async function getStaticPaths() {
-  const posts = await getCollection('posts', ({ data }) => !data.draft);
-  return posts.map((post) => ({
-    params: { slug: slugOf(post) },
-    props: { post },
-  }));
+  return (await gardenPosts()).map(post => ({ params: { slug: slugOf(post) }, props: { post } }));
 }
-
 const { post } = Astro.props;
-const { title, description, date, updateDate, tags } = post.data;
-const { Content } = await render(post);
-
-const y = date.getFullYear();
-const m = String(date.getMonth() + 1).padStart(2, '0');
-const d = String(date.getDate()).padStart(2, '0');
-const longDate = `${y} 年 ${Number(m)} 月 ${Number(d)} 日`;
-
-const posts = (await getCollection('posts', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-const idx = posts.findIndex((p) => p.id === post.id);
-const prev = idx > 0 ? posts[idx - 1] : null;
-const next = idx >= 0 && idx < posts.length - 1 ? posts[idx + 1] : null;
+const { title, description, date, updateDate, tags, category, growth, draft, demo } = post.data;
+const { Content, headings } = await render(post);
+const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
+const related = (await gardenPosts()).filter(p => p.id !== post.id && p.data.tags.some(tag => tags.includes(tag))).slice(0, 3);
 ---
-
-<Layout title={title} description={description} active="posts">
-  <article class="post">
-    <header>
-      <h1>{title}</h1>
-      <div class="post-meta">
-        <time datetime={date.toISOString()}>{longDate}</time>
-        {updateDate && <span>更新于 {updateDate.getFullYear()}-{String(updateDate.getMonth() + 1).padStart(2, '0')}-{String(updateDate.getDate()).padStart(2, '0')}</span>}
-        {tags.length > 0 && (
-          <span class="tags" style="display: inline-flex;">
-            {tags.map((t, i) => (
-              <a class="tag" href={`/posts/?tag=${encodeURIComponent(t)}`} key={i} style="font-size: 0.75rem;">{t}</a>
-            ))}
-          </span>
-        )}
-      </div>
-    </header>
-
-    <div class="prose">
-      <Content />
-    </div>
-
-    {(prev || next) && (
-      <nav style="display: flex; justify-content: space-between; gap: 20px; margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--border); font-size: 0.92rem;">
-        <div style="flex: 1;">
-          {prev && (
-            <a href={`/posts/${slugOf(prev)}/`} style="display: flex; flex-direction: column; gap: 4px;">
-              <small style="color: var(--text-faint);">← 上一篇</small>
-              <span>{prev.data.title}</span>
-            </a>
-          )}
-        </div>
-        <div style="flex: 1; text-align: right;">
-          {next && (
-            <a href={`/posts/${slugOf(next)}/`} style="display: flex; flex-direction: column; gap: 4px;">
-              <small style="color: var(--text-faint);">下一篇 →</small>
-              <span>{next.data.title}</span>
-            </a>
-          )}
-        </div>
-      </nav>
-    )}
-  </article>
-</Layout>
+<Layout title={title} description={description} active="posts" article><article class="post-layout shell"><div class="post-body"><header class="article-header"><a class="back-link" href="/posts/">← 回到花园</a><div class="article-kind"><span>{category}</span><span class={`growth-label ${growth}`}><i class={`growth-dot ${growth}`}></i>{growthLabels[growth]}</span></div>{(draft || demo) && <p class="draft-notice">{demo ? '开发排版示例，用于本地检查，不会公开发布。' : '这是一篇本地草稿，不会出现在正式网站。'}</p>}<h1>{title}</h1>{description && <p class="article-summary">{description}</p>}<div class="article-meta"><time datetime={formatDate(date)}>{formatDate(date)}</time>{updateDate && <span>修订于 {formatDate(updateDate)}</span>}<div class="card-tags">{tags.map(tag => <a href={topicUrl(tag)}>{tag}</a>)}</div></div></header><div class="prose"><Content /></div><div class="article-end"><span aria-hidden="true">❧</span><p>想法会生长。这篇记录也可能继续修订。</p><a href="/archive/">沿着时间继续阅读 →</a></div>{related.length > 0 && <section class="related"><h2>相关的几片叶子</h2>{related.map(p => <a href={`/posts/${slugOf(p)}/`}>{p.data.title}<span aria-hidden="true">↗</span></a>)}</section>}</div>{toc.length > 0 && <aside class="toc"><p class="eyebrow">这篇记录</p><nav aria-label="文章目录">{toc.map(h => <a class:list={[{ 'toc-sub': h.depth === 3 }]} href={`#${h.slug}`}>{h.text}</a>)}</nav></aside>}</article></Layout>

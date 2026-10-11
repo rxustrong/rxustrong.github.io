@@ -24,6 +24,6 @@ collections:
       - label: 草稿
         name: draft
         widget: boolean
-        default: false
+        default: true
         required: false
       - { label: 正文, name: body, widget: richtext }

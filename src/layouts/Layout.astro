@@ -1,54 +1,30 @@
 ---
 import '../styles/global.css';
-export interface Props {
-  title: string;
-  description?: string;
-  active?: 'home' | 'posts' | 'about';
-}
-const { title, description, active } = Astro.props;
-const pageTitle = title === '阿燃的漂流日记'
-  ? title
-  : `${title} · 阿燃的漂流日记`;
+interface Props { title: string; description?: string; active?: 'home' | 'posts' | 'topics' | 'archive' | 'about'; article?: boolean; }
+const { title, description = '阅读、投资、学习与生活，记录想法的来处与变化。', active, article = false } = Astro.props;
+const pageTitle = title === '瑞安漂流日记' ? title : `${title} · 瑞安漂流日记`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const links = [['home', '/', '首页'], ['posts', '/posts/', '花园'], ['topics', '/topics/', '主题'], ['archive', '/archive/', '归档'], ['about', '/about/', '关于']];
 ---
-
 <!doctype html>
 <html lang="zh-CN">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{pageTitle}</title>
-    <meta name="description" content={description ?? '阿燃的漂流日记：投资梳理与个人感悟'} />
-    <meta name="generator" content={Astro.generator} />
-    <meta property="og:title" content={pageTitle} />
-    <meta property="og:type" content="website" />
-    <meta name="theme-color" content="#c8481f" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="alternate" type="application/rss+xml" title="阿燃的漂流日记" href="/rss.xml" />
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title><meta name="description" content={description} /><link rel="canonical" href={canonical} />
+    <meta property="og:title" content={pageTitle} /><meta property="og:description" content={description} />
+    <meta property="og:type" content={article ? 'article' : 'website'} /><meta property="og:url" content={canonical} />
+    <meta name="theme-color" content="#f6f3eb" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="瑞安漂流日记" href="/rss.xml" />
+    {import.meta.env.DEV && <meta name="robots" content="noindex,nofollow" />}
   </head>
   <body>
-    <header class="nav">
-      <div class="nav-inner">
-        <a class="brand" href="/">阿燃的漂流日记<small>ARAN</small></a>
-        <nav class="nav-links">
-          <a href="/" class:list={[{ 'active': active === 'home' }]}>首页</a>
-          <a href="/posts/" class:list={[{ 'active': active === 'posts' }]}>文章</a>
-          <a href="/about/" class:list={[{ 'active': active === 'about' }]}>关于</a>
-          <a href="/admin/" target="_blank">写作</a>
-        </nav>
-      </div>
+    <a class="skip-link" href="#main">跳到正文</a>
+    {import.meta.env.DEV && <div class="preview-banner">本地预览 · 草稿和开发示例仅在这里显示</div>}
+    <header class="site-header shell">
+      <a class="brand" href="/" aria-label="瑞安漂流日记首页"><span class="brand-mark" aria-hidden="true">✳</span><span>瑞安漂流日记<small>RUIAN'S DRIFTING NOTES</small></span></a>
+      <nav aria-label="主导航">{links.map(([key, href, text]) => <a href={href} aria-current={active === key ? 'page' : undefined}>{text}</a>)}</nav>
     </header>
-
-    <slot />
-
-    <footer class="footer">
-      <div class="footer-inner">
-        <span>阿燃的漂流日记 · 用文字记录漂流与思考</span>
-        <span>
-          <a href="/admin/" target="_blank">登录写作</a>
-          <span class="dot">·</span>
-          <a href="/rss.xml">RSS</a>
-        </span>
-      </div>
-    </footer>
+    <main id="main"><slot /></main>
+    <footer class="site-footer shell"><div><a class="footer-name" href="/">瑞安漂流日记</a><p>让一些想法，在这里慢慢生长。</p></div><div class="footer-links"><a href="/about/">关于这座花园</a><a href="/archive/">时间归档</a><a href="/rss.xml">RSS 订阅 ↗</a></div><span class="footer-bottom">© {new Date().getFullYear()} 瑞安 · 记录，回看，再出发。</span></footer>
   </body>
 </html>

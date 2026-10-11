@@ -1,64 +1,21 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import TagBadge from '../../components/TagBadge.astro';
-import { getCollection } from 'astro:content';
-import { slugOf } from '../../utils/slug';
-
-const url = new URL(Astro.url);
-const activeTag = url.searchParams.get('tag');
-
-const allPosts = (await getCollection('posts', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-
-const tagCounts = new Map<string, number>();
-for (const p of allPosts) {
-  for (const t of p.data.tags) {
-    tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
-  }
-}
-const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
-
-const posts = activeTag
-  ? allPosts.filter((p) => p.data.tags.includes(activeTag))
-  : allPosts;
+import PostCard from '../../components/PostCard.astro';
+import { gardenPosts, categories, growthLabels } from '../../utils/garden';
+const posts = await gardenPosts();
 ---
-
-<Layout title="文章" description="阿燃的漂流日记所有文章" active="posts">
-  <main class="container" style="padding-top: 52px; padding-bottom: 72px;">
-    <div class="section-head" style="margin-bottom: 18px;">
-      <h2>{activeTag ? `# ${activeTag}` : '全部文章'}<small style="color: var(--text-faint); font-weight: 400; font-size: 0.9rem; margin-left: 10px;">共 {posts.length} 篇</small></h2>
-    </div>
-
-    <div class="filter-bar">
-      <a class="tag" class:list={[{ 'on': !activeTag }]} href="/posts/">全部</a>
-      {tags.map(([tag]) => (
-        <a class="tag" class:list={[{ 'on': activeTag === tag }]} href={`/posts/?tag=${encodeURIComponent(tag)}`}>
-          {tag} · {tagCounts.get(tag)}
-        </a>
-      ))}
-    </div>
-
-    {posts.length > 0 ? (
-      <div class="list">
-        {posts.map((post) => {
-          const { title, description, date, tags } = post.data;
-          const y = date.getUTCFullYear();
-          const m = String(date.getUTCMonth() + 1).padStart(2, '0');
-          const d = String(date.getUTCDate()).padStart(2, '0');
-          return (
-            <article class="list-item">
-              <time style="font-size: 0.8rem; color: var(--text-faint);">{y}-{m}-{d}</time>
-              <h2><a href={`/posts/${slugOf(post)}/`}>{title}</a></h2>
-              {description && <p style="margin: 0; color: var(--text-soft); font-size: 0.92rem;">{description}</p>}
-              <div class="tags">
-                {tags.map((t, i) => <TagBadge tag={t} href={`/posts/?tag=${encodeURIComponent(t)}`} key={i} />)}
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    ) : (
-      <p style="color: var(--text-soft);">该分类下还没有文章。</p>
-    )}
-  </main>
-</Layout>
+<Layout title="花园" active="posts"><section class="page-heading shell"><p class="eyebrow">THE DIGITAL GARDEN</p><h1>一座想法的花园</h1><p>记录尝试，整理发现，也为尚未想清楚的问题留一点空间。</p></section><section class="shell garden-list"><div class="filter-bar" role="group" aria-label="按栏目筛选"><button class="filter active" data-category="all" aria-pressed="true">全部</button>{categories.map(category => <button class="filter" data-category={category} aria-pressed="false">{category}</button>)}</div><div class="growth-explanation">{Object.entries(growthLabels).map(([key, label]) => <span><i class={`growth-dot ${key}`}></i>{label}</span>)}<span class="results-count">共 <span id="result-count">{posts.length}</span> 篇</span></div><div class="post-grid">{posts.map(post => <div data-post-category={post.data.category}><PostCard post={post} /></div>)}</div><div class="empty-state" id="filter-empty" hidden={posts.length > 0}><span aria-hidden="true">❧</span><h2>这里的想法还在酝酿。</h2><p>这个栏目暂时没有文章。可以换个栏目，或沿着主题继续走走。</p><a class="quiet-link" href="/topics/">浏览主题 ↗</a></div><noscript><p class="muted">以下展示全部文章；也可以使用主题页和时间归档浏览。</p></noscript></section></Layout>
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-category]');
+  const cards = document.querySelectorAll<HTMLElement>('[data-post-category]');
+  const select = (category: string) => {
+    let count = 0;
+    cards.forEach(card => { const visible = category === 'all' || card.dataset.postCategory === category; card.hidden = !visible; if (visible) count++; });
+    buttons.forEach(button => { const active = button.dataset.category === category; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active)); });
+    document.getElementById('result-count')!.textContent = String(count);
+    document.getElementById('filter-empty')!.hidden = count > 0;
+  };
+  buttons.forEach(button => button.addEventListener('click', () => select(button.dataset.category!)));
+  const tag = new URLSearchParams(location.search).get('tag');
+  if (tag) location.replace(`/topics/${encodeURIComponent(tag)}/`);
+</script>

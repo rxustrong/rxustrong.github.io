@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "博客：新建草稿",
+      "type": "process",
+      "command": "node",
+      "args": ["scripts/new-post.mjs", "${input:postTitle}"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "博客：本地预览（含草稿）",
+      "type": "process",
+      "command": "node",
+      "args": ["node_modules/astro/astro.js", "dev"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "博客：发布前检查",
+      "type": "process",
+      "command": "node",
+      "args": ["scripts/publish.mjs", "--check-only"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [{ "id": "postTitle", "type": "promptString", "description": "新文章标题" }]
+}
